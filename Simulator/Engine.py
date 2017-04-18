@@ -1,3 +1,11 @@
+################################################################################
+# BOTAI
+################################################################################
+# https://github.com/RafaelCartenet/BOTAI
+# This simulator predicts the efficiency of a given strategy. According to a
+# period of time, it will use the strategy policy in order to simulate bets,
+# compute the results, and gives statistics, in order to have an idea about the
+# efficiency of the model.
 
 
 class Engine:
@@ -7,7 +15,7 @@ class Engine:
         self.policy = policy
         self.SPs = data.SPs
         self.dates = data.dates
-        self.nbtimesteps = self.data.getN()
+        self.nbtimesteps = self.data.N
         self.stats = stats
 
     def result_action(self, action, timestep):

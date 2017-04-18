@@ -1,3 +1,13 @@
+################################################################################
+# BOTAI
+################################################################################
+# https://github.com/RafaelCartenet/BOTAI
+# This simulator predicts the efficiency of a given strategy. According to a
+# period of time, it will use the strategy policy in order to simulate bets,
+# compute the results, and gives statistics, in order to have an idea about the
+# efficiency of the model.
+
+
 # Libraries
 import pandas as pd
 import numpy as np
@@ -47,12 +57,3 @@ class DataManager:
         self.SPs = self.SPs[indexes]
         self.dates = self.dates[indexes]
         self.N = len(indexes)
-
-    def getN(self):
-        return self.N
-
-    def getSPs(self):
-        return self.SPs
-
-    def getDates(self):
-        return self.dates

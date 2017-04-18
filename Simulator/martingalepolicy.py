@@ -1,5 +1,26 @@
+################################################################################
+# BOTAI
+################################################################################
+# https://github.com/RafaelCartenet/BOTAI
+# This simulator predicts the efficiency of a given strategy. According to a
+# period of time, it will use the strategy policy in order to simulate bets,
+# compute the results, and gives statistics, in order to have an idea about the
+# efficiency of the model.
+
+# Martingale Policy.
+# Strategy:
+# - Always bet on calls or puts.
+# - Bet an initial bet. (init)
+# - if you were right, bet the initial bet
+# - if you were wrong, bet ratio times the previous bet
+# - if the strike price is equal, bet the same amount than previous time step
+# - and so on.
+
+
+# Policy Parent class.
 from Policy import *
 
+# Libraries
 from numpy.random import choice
 
 class martingalepolicy(Policy):

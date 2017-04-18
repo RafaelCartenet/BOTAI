@@ -1,10 +1,23 @@
+################################################################################
+# BOTAI
+################################################################################
+# https://github.com/RafaelCartenet/BOTAI
+# This simulator predicts the efficiency of a given strategy. According to a
+# period of time, it will use the strategy policy in order to simulate bets,
+# compute the results, and gives statistics, in order to have an idea about the
+# efficiency of the model.
+
 
 # Libraries
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
+
+################################################################################
+# MODULSTAT CLASS
+################################################################################
 
 class ModulStat():
 
@@ -59,9 +72,9 @@ class ModulStat():
         return r
 
     def actions_toStr(self):
-        r = "-------------------------------------------------------------------------\n"
-        r += "|#\t|Date\t\t|StackP\t|action\t|amount\t\t|result\t|balance\n"
-        r += "-------------------------------------------------------------------------\n"
+        r = "---------------------------------------------------------------------------------------\n"
+        r += "|#\t|Date\t\t\t\t|StackP\t|action\t|amount\t\t|result\t|balance\n"
+        r += "---------------------------------------------------------------------------------------\n"
         for i in range(self.N-1):
             r += "|" + str(i+1) + "\t|"
             r += str(self.dates[i]) + "\t|"
@@ -69,7 +82,7 @@ class ModulStat():
             r += self.takenactions[i].toStr() + "\t|"
             r += "%.2f" % self.balance_ot[i] + "\t"
             if self.takenactions[i].isEqual:
-                r += "IS EQUAL\n"
+                r += "equal SP\n"
             else:
                 r += "\n"
         r += "|" + str(self.N) + "\t|"
@@ -87,9 +100,9 @@ class ModulStat():
         r += "  Period Start\t\t: " + self.data.time_s + "\n"
         r += "  Period End\t\t: " + self.data.time_e + "\n"
         r += "  Timestep used\t\t: " + self.data.tsype + "\n"
-        r += "  Ups\t\t\t: " + str(self.ups) + "\n"
-        r += "  Downs\t\t\t: " + str(self.downs) + "\n"
-        r += "  Equals\t\t: " + str(self.equals) + "\n"
+        r += "  Ups\t\t\t: " + str(self.ups) + " | " + "%.2f" % (100*float(self.ups)/(self.N-1)) + "%\n"
+        r += "  Downs\t\t\t: " + str(self.downs) + " | " + "%.2f" % (100*float(self.downs)/(self.N-1)) + "%\n"
+        r += "  Equals\t\t: " + str(self.equals) + " | " + "%.2f" % (100*float(self.equals)/(self.N-1)) + "%\n"
         return r
 
     def results_toStr(self):

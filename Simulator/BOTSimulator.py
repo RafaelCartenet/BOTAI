@@ -1,47 +1,49 @@
-# Classes
+################################################################################
+# BOTAI
+################################################################################
+# https://github.com/RafaelCartenet/BOTAI
+# This simulator predicts the efficiency of a given strategy. According to a
+# period of time, it will use the strategy policy in order to simulate bets,
+# compute the results, and gives statistics, in order to have an idea about the
+# efficiency of the model.
+
+
+#Classes
 from DataManager import *
 from ModuleStat import *
 from Engine import *
-
-# Libraries
-import warnings
-warnings.filterwarnings('ignore')
 
 # Policies
 from randompolicy import *
 from martingalepolicy import *
 
-class BOTSimulator:
-    def __init__(self, policy=randompolicy):
-        self.DataExtractor = DataExtraction()
-        self.StatModule = ModuleStat()
-        self.policy = policy
+# Libraries
+import warnings
+warnings.filterwarnings('ignore')
 
-    def getData(self):
-        self.data = DataExtractor.getData()
+def main():
+    # DATA MANAGER
+    datamanager = DataManager("../data/EURUSD.csv",
+                    "M1",
+                    "d03/04/17 00:00",
+                    "d03/04/17 23:59")
 
-    def loadPolicy(self):
-        self.policy = self.policy()
+    datamanager.ImportData()
 
-    def run(self):
-        self.getData()
-        self.loadPolicy()
+    # STATS MODULE
+    modulestats = ModulStat(datamanager, initial_balance=1000)
 
+    # POLICY DEFINITION
+    policy = martingalepolicy(ratio=2.13636364, init=1)
 
-c = DataManager("EURUSD.csv",
-                "M1",
-                "03/04/17 00:00",
-                "03/04/17 23:59")
-c.ImportData()
+    # ENGINE
+    engine = Engine(datamanager, policy, modulestats)
+    engine.run()
 
-m = ModulStat(c, 1000)
+    # STATISTICS
+    modulestats.compute_stats()
+    modulestats.display_stats()
+    #modulestats.plot_stats()
 
-
-p = martingalepolicy(ratio=2.13636364, init=1)
-
-engine = Engine(c, p, m)
-engine.run()
-
-m.compute_stats()
-m.display_stats()
-m.plot_stats()
+if __name__ == "__main__":
+    main()

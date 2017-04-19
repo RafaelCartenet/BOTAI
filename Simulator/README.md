@@ -67,7 +67,6 @@ This is the main function of the simulator. After loading load thanks to the Dat
 It looks like :
 
 ```python
-datamanager = DataManager("../data/EURUSD.csv", "M1", "03/04/17 00:00", "03/04/17 23:59")
 # DATA MANAGER
 datamanager = DataManager("../data/EURUSD.csv",
                 "M1",

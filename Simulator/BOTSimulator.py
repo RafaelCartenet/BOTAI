@@ -7,7 +7,6 @@
 # compute the results, and gives statistics, in order to have an idea about the
 # efficiency of the model.
 
-
 #Classes
 from DataManager import *
 from ModuleStat import *

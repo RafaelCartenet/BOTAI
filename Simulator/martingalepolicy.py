@@ -9,9 +9,9 @@
 
 # Martingale Policy.
 # Strategy:
-# - Always bet on calls or puts.
+# - Always bet either on calls either on puts, stick to one action.
 # - Bet an initial bet. (init)
-# - if you were right, bet the initial bet
+# - if you were right, bet the initial bet. (init)
 # - if you were wrong, bet ratio times the previous bet
 # - if the strike price is equal, bet the same amount than previous time step
 # - and so on.
@@ -26,7 +26,7 @@ from numpy.random import choice
 class martingalepolicy(Policy):
     def __init__(self, ratio=2.5, init=1):
         Policy.__init__(self, "MartinGale " + str(ratio))
-        self.rr = ratio
+        self.reinvestratio = ratio
         self.init = init
         self.amount = self.init
 
@@ -39,4 +39,4 @@ class martingalepolicy(Policy):
                 if prev.isEqual:
                     return self.put(prev.amount)
                 return self.put(self.init)
-            return self.put(prev.amount * self.rr)
+            return self.put(prev.amount * self.reinvestratio)

@@ -7,7 +7,6 @@
 # compute the results, and gives statistics, in order to have an idea about the
 # efficiency of the model.
 
-
 from Action import *
 import numpy as np
 

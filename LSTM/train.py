@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import time
+import csv
 
 # PARAMETERS
 state_size = 20
@@ -36,10 +37,10 @@ class Data:
 
     # load strike prices inside a list of format [[SP1], [SP2], ... , [SPN]]
     def load(self):
-        with open(self.file) as f:
-            df = pd.read_csv(f, sep=";")
-            self.SPs = list(df['strike price'])
-            self.SPs = [[SP] for SP in self.SPs]
+        with open(self.file, 'r') as f:
+            data = [row for row in csv.reader(f.read().splitlines(), delimiter = ";")][1:]
+            data = [[float(dat[-1])] for dat in data]
+            self.SPs = data
             self.N = len(self.SPs)
 
     # computes the tendency. tendencies[t] =

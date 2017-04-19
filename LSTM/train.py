@@ -1,14 +1,15 @@
 import tensorflow as tf
 import numpy as np
 import pandas as pd
+import time
 
 # PARAMETERS
-state_size = 10
+state_size = 20
 input_size = 1
 output_size = 1
 num_steps = 20
 num_layers = 2
-batch_size = 50
+batch_size = 200
 nb_epochs = 20000
 treshold = 0.20
 learning_rate = 0.01
@@ -39,7 +40,7 @@ class Data:
             df = pd.read_csv(f, sep=";")
             self.SPs = list(df['strike price'])
             self.SPs = [[SP] for SP in self.SPs]
-            self.N = 4001#len(self.SPs)
+            self.N = len(self.SPs)
 
     # computes the tendency. tendencies[t] =
     #  +1 if SP[t+1] > SP[t]
@@ -123,9 +124,11 @@ rnn_outputs = tf.reshape(rnn_outputs, [-1, state_size])
 
 # activation function : tanh
 logits = tf.nn.tanh(tf.matmul(rnn_outputs, W) + b)
-
 logits = tf.reshape(logits, [-1, num_steps, output_size])
 final_result = tf.round(logits)
+
+real_next = y_reshaped[:, -1]
+next_pred = final_result[:, -1]
 
 # loss function
 total_loss = tf.reduce_sum(tf.pow(outputs - logits,2))/(num_steps)
@@ -134,12 +137,13 @@ total_loss = tf.reduce_sum(tf.pow(outputs - logits,2))/(num_steps)
 correct_prediction = tf.equal(final_result, outputs)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+nextpred_correct_prediction = tf.equal(real_next, next_pred)
+nextpred_accuracy = tf.reduce_mean(tf.cast(nextpred_correct_prediction, tf.float32))
+
 # maximizer
 train_step = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
 
-# test data
-testX = np.array(batch_size*[[[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]])
-testY = np.array(batch_size*[[[1], [-1], [0], [1], [1], [0], [1], [-1], [1], [1]]])
+
 
 
 #--------------------#
@@ -151,6 +155,25 @@ dataset.compute_tendency()
 dataset.gen_datasets()
 
 
+#--------------------#
+# DEBUGGING
+#--------------------#
+# test data
+testX = np.array(batch_size*[[[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]])
+testY = np.array(batch_size*[[[1], [-1], [0], [1], [1], [0], [1], [-1], [1], [1]]])
+"""
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    fd = feed_dict={inputs: testX, outputs: testY}
+    print(y_reshaped.eval(fd))
+    print(final_result.eval(fd))
+    print(real_next.eval(fd))
+    print(next_pred.eval(fd))
+    print(accuracy.eval(fd))
+    print(nextpred_accuracy.eval(fd))
+
+assert()
+"""
 #--------------------#
 # TRAINING
 #--------------------#
@@ -164,21 +187,30 @@ with tf.Session() as sess:
     for epochID in range(nb_epochs):
         epoch_loss = 0
         epoch_accu = 0
+        epoch_top1accu = 0
         nb_batchs = len(dataset.batchs_train)
+        t = time.time()
         for batch in dataset.batchs_train:
             dataX, dataY = batch
             loss = sess.run([total_loss, train_step], feed_dict={inputs: dataX, outputs: dataY})
+            t = time.time() - t
             accu = accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
+            top1accu = nextpred_accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
             epoch_loss += loss[0]/(nb_batchs*batch_size)
             epoch_accu += 100*(accu)/nb_batchs
+            epoch_top1accu += 100*(top1accu)/nb_batchs
+        sp = nb_batchs * batch_size / (time.time() - t)
         if epochID % 1 == 0:
-            print "train epoch :", epochID, "error :",epoch_loss,"\taccu : %.2f" % epoch_accu,"%"
+            print "train epoch: ", epochID, "\terr: ",epoch_loss,"\taccu : %.2f \t@1accu : %.2f \tspeed : %.2f win/s" % (epoch_accu, epoch_top1accu, sp)
         if epochID % 10 == 0:
             epoch_loss = 0
             epoch_accu = 0
             nb_batchs = len(dataset.batchs_test)
             for batch in dataset.batchs_test:
                 dataX, dataY = batch
+                loss = total_loss.eval(feed_dict={inputs: dataX, outputs: dataY})
                 accu = accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
+                epoch_loss += loss/(nb_batchs*batch_size)
                 epoch_accu += 100*(accu)/nb_batchs
-            print "test epoch  :", epochID, "\t\t\t\taccu : %.2f" % epoch_accu,"%"
+                epoch_top1accu += 100*(top1accu)/nb_batchs
+            print "test  epoch: ", epochID, "\terr: ",epoch_loss,"\taccu : %.2f \t@1accu : %.2f" % (epoch_accu, epoch_top1accu)

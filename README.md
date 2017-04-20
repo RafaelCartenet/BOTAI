@@ -1,25 +1,24 @@
 # BOTAI (Binary Optins Trading Artificial Intelligence)
 Binary Options Trading is as simple as wagering on the tendency of an asset, such as currency pairs (EUR/USD etc.). It is considered sometimes more like gambling than real trading.  
-At each time step, you can bet a certain amount X that  what they called the "strike price" is gonna increase (in this case that's a "Call") or that it is gonna decrease (in that case it's a "Put").  
+At each time step, you can bet a certain amount X that the value of the asset, also called strike price, is gonna increase (in this case it's a "Call") or that it is gonna decrease (in that case it's a "Put").  
 If you were right, you will earn a ratio of your bet, this ratio is most of the time either 0.88 or 0.80.  
 If you were wrong, you will lose 100% of your bet.  
 
-
 **Simple example:**  
-Let's say at 16:23 the EUR/USD ratio is 1.20675. You bet 100$ on a Call, and you were right. Ratio is 0.88. You will end up with 188$. Let's say now that you were wrong, you'll have 0$ left.  
+Let's say at 16:23 the EUR/USD ratio is 1.20675. Your initial balance is 1000$. You bet 100$ on a Call for the next minute. At 16:24 the EUR/USD ratio is 1.20679. It's slightly better, you were right. Ratio is 0.88. You will end up with 1088$. Let's say now that the EUR/USD ratio at 16:24 was actually 1.2059, you would have been wrong and would have ended up with 900$.  
 
 Simple calculus leads to notice that in order to be cost effective, your right/wrong ratio needs to be higher than 1/(1+r).  
 Which is 53% when the ratio is 0.88, 56% when the ratio is 0.80.  
 
-The goal of the project is to realize an automatized cost effective strategy with a ratio higher than these reference ratios, with as few as possible risks and a good balance and reinvestment management.
+The goal of the project is to realize an automatized cost effective strategy with a ratio higher than these reference ratios, with as few as possible risks and a balance and reinvestment management strategy.
 
 Files belows are independant for now.  
 
-
 ## Simulator
+More details on the code [here](../../tree/master/Simulator)  
 This simulator predicts the efficiency of a given strategy. According to a period of time, it will use the chosen strategy in order to simulate bets, compute the results, and gives statistics, in order to have an idea about the efficiency of the model.
 
-The simulation outputs several statistics such as Datas information, Results as well as informations relative to the consecutive results. Example of results displayed:
+The simulation outputs several statistics such as Datas information, Results of the strategy as well as informations relative to the consecutive results. Example of results displayed:
 ```
 Datas information
 --------------------------------------
@@ -81,4 +80,5 @@ Another output is the list of every action taken at each time step as well as th
 Note that the most right ammount is the balance after that the bet has been done, before the result of next time step.
 
 ## LSTM
-This is the first try of predictive model, using LSTM neural networks.
+This is the first try of predictive model, using LSTM neural networks.  
+**in construction**

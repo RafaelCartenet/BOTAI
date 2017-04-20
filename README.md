@@ -1,10 +1,11 @@
-# BOTAI
-Binary Options Trading is as simple as wagering on the tendency of an action, such as currency pairs (EUR/USD etc.).  
+# BOTAI (Binary Optins Trading Artificial Intelligence)
+Binary Options Trading is as simple as wagering on the tendency of an asset, such as currency pairs (EUR/USD etc.). It is considered sometimes more like gambling than real trading.  
 At each time step, you can bet a certain amount X that  what they called the "strike price" is gonna increase (in this case that's a "Call") or that it is gonna decrease (in that case it's a "Put").  
 If you were right, you will earn a ratio of your bet, this ratio is most of the time either 0.88 or 0.80.  
 If you were wrong, you will lose 100% of your bet.  
 
-Simple example:  
+
+**Simple example:**  
 Let's say at 16:23 the EUR/USD ratio is 1.20675. You bet 100$ on a Call, and you were right. Ratio is 0.88. You will end up with 188$. Let's say now that you were wrong, you'll have 0$ left.  
 
 Simple calculus leads to notice that in order to be cost effective, your right/wrong ratio needs to be higher than 1/(1+r).  
@@ -16,18 +17,18 @@ Files belows are independant for now.
 
 
 ## Simulator
-This simulator predicts the efficiency of a given strategy. According to a period of time, it will use the strategy actions in order to simulate bets, compute the results, and gives statistics, in order to have an idea about the efficiency of the model.
+This simulator predicts the efficiency of a given strategy. According to a period of time, it will use the chosen strategy in order to simulate bets, compute the results, and gives statistics, in order to have an idea about the efficiency of the model.
 
-example of simulation output:
+The simulation outputs several statistics such as Datas information, Results as well as informations relative to the consecutive results. Example of results displayed:
 ```
 Datas information
 --------------------------------------
   Period Start		: 03/04/17 00:00
   Period End		: 03/04/17 23:58
   Timestep used		: M1
-  Ups			: 664
-  Downs			: 653
-  Equals		: 121
+  Ups			: 664 | 46.18%
+  Downs			: 653 | 45.41%
+  Equals		: 121 | 8.41%
 
 Results
 --------------------------------------
@@ -63,7 +64,21 @@ Consecutive actions results
     5:	|6	|11
     6:	|3	|5
     7:	|1	|2
-    9:	|1	|1
+    9:	|1	|1
 ```
+
+Another output is the list of every action taken at each time step as well as the result of this action and the evolution of the balance. Here is an example of a Martingale policy simulation with time step M5:
+```
+...
+|239	|2017-03-04 19:50:00+00:00	|1.06636 |Put	|20.83		|False	|1083.75
+|240	|2017-03-04 19:55:00+00:00	|1.06638 |Put	|44.50		|True	|1062.92
+|241	|2017-03-04 20:00:00+00:00	|1.06603 |Put	|1.00		|False	|1102.08
+|242	|2017-03-04 20:05:00+00:00	|1.06609 |Put	|2.14		|True	|1101.08
+|243	|2017-03-04 20:10:00+00:00	|1.06601 |Put	|1.00		|False	|1102.96
+|244	|2017-03-04 20:15:00+00:00	|1.06606 |Put	|2.14		|False	|1101.96
+...
+```
+Note that the most right ammount is the balance after that the bet has been done, before the result of next time step.
+
 ## LSTM
 This is the first try of predictive model, using LSTM neural networks.

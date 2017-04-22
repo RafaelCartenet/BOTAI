@@ -4,14 +4,13 @@ import time
 import csv
 
 # PARAMETERS
-state_size = 10
+state_size = 20
 input_size = 1
 output_size = 1
-num_steps = 10#20
+num_steps = 10
 num_layers = 2
-batch_size = 2#200
+batch_size = 300
 nb_epochs = 80000
-treshold = 0.20
 learning_rate = 0.01
 np.random.seed(10)
 
@@ -110,53 +109,68 @@ def tf_count(t, val):
 
 # input/output placeholders
 inputs = tf.placeholder(tf.float32, [batch_size, num_steps, input_size])
-outputs = tf.placeholder(tf.float32, [batch_size, num_steps, output_size])
+outputs_R = tf.placeholder(tf.float32, [batch_size, num_steps, output_size])
 
-# definition of the RNN
 
-try:
+# --- LSTM RNN ---
+# LSTM cell
+try: # depends on the version of the tensorflow.
     cell = tf.contrib.rnn.LSTMCell(state_size, state_is_tuple=True)
     cell = tf.contrib.rnn.MultiRNNCell([cell] * num_layers, state_is_tuple=True)
 except AttributeError:
     cell = tf.nn.rnn_cell.LSTMCell(state_size, state_is_tuple=True)
     cell = tf.nn.rnn_cell.MultiRNNCell([cell] * num_layers, state_is_tuple=True)
 
+# RNN layers
 init_state = cell.zero_state(batch_size, tf.float32)
-rnn_outputs, final_state = tf.nn.dynamic_rnn(cell, inputs, initial_state=init_state)
-
+rnn_outputs, _ = tf.nn.dynamic_rnn(cell, inputs, initial_state=init_state)
 
 # last fully connected layer on top of the RNN
+rnn_outputs = tf.reshape(rnn_outputs, [-1, state_size])
 with tf.variable_scope('tanh'):
     W = tf.get_variable('W', [state_size, output_size])
     b = tf.get_variable('b', [output_size], initializer=tf.constant_initializer(0.0))
+outputs_P = tf.nn.tanh(tf.matmul(rnn_outputs, W) + b)
+outputs_P = tf.reshape(outputs_P, [batch_size, num_steps, output_size])
 
-# reshaping of the outputs and the ground truth label for comparison
-y_reshaped = tf.reshape(outputs, [-1, num_steps, output_size])
-rnn_outputs = tf.reshape(rnn_outputs, [-1, state_size])
+# decision threshold
+threshold = 0.5
+pos = tf.ones([batch_size, num_steps, output_size], tf.float32)
+neg = -tf.ones([batch_size, num_steps, output_size], tf.float32)
+zer = tf.zeros([batch_size, num_steps, output_size], tf.float32)
 
-# activation function : tanh
-logits = tf.nn.tanh(tf.matmul(rnn_outputs, W) + b)
-logits = tf.reshape(logits, [-1, num_steps, output_size])
-final_result = tf.round(logits)
+round_outputs_P = tf.select(tf.abs(outputs_P) < threshold, zer, outputs_P)
+round_outputs_P = tf.select(round_outputs_P > 0, pos, round_outputs_P)
+round_outputs_P = tf.select(round_outputs_P < 0, neg, round_outputs_P)
+# ---------------
 
-real_next = y_reshaped[:, -1]
-next_pred = final_result[:, -1]
 
+# --- LOSS FN ---
 # loss function
-total_loss = tf.reduce_sum(tf.pow(outputs - logits,2))/(num_steps)
+total_loss = tf.reduce_mean(tf.pow(outputs_R - outputs_P,2))
+# ---------------
 
-# accuracy function
-correct_prediction = tf.equal(final_result, outputs)
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-nextpred_correct_prediction = tf.equal(real_next, next_pred)
-nextpred_accuracy = tf.reduce_mean(tf.cast(nextpred_correct_prediction, tf.float32))
+# --- ACCURACY ---
+# Real and Predicted Values for last time step.
+last_outputs_P = round_outputs_P[:, -1, :]
+last_outputs_R = outputs_R[:, -1, :]
 
-# maximizer
+# total accuracy
+correct_prediction = tf.equal(round_outputs_P, outputs_R)
+_total_accu = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+# last time step accuracy
+correct_prediction = tf.equal(last_outputs_P, last_outputs_R)
+_lastP_accu = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+# ----------------
+
+
+
+# --- MAXIMIZER ---
 train_step = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
+# -----------------
 
-
-test = y_reshaped[:, :, 0]
 
 
 #--------------------#
@@ -176,62 +190,71 @@ dataset.gen_datasets()
 testX = np.array(batch_size*[[[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]])
 testY = np.array(batch_size*[[[1], [-1], [0], [1], [1], [0], [1], [-1], [1], [1]]])
 
+"""
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    fd = feed_dict={inputs: testX, outputs: testY}
-    print("y_reshaped")
-    print(y_reshaped.eval(fd))
-    print("test")
-    print(test.eval(fd))
+    fd = feed_dict={inputs: testX, outputs_R: testY}
+    print(outputs_P.eval(fd))
+    print(round_outputs_P.eval(fd))
     #print(tf_count(y_reshaped.eval(fd), 0))
-    print("final result")
-    print(final_result.eval(fd))
-    print(real_next.eval(fd))
-    print(next_pred.eval(fd))
-    print(accuracy.eval(fd))
-    print(nextpred_accuracy.eval(fd))
+    #print("final result")
+    #print(final_result.eval(fd))
+    #print(real_next.eval(fd))
+    #print(next_pred.eval(fd))
+    #print(accuracy.eval(fd))
+    #print(nextpred_accuracy.eval(fd))
 
 assert()
-
+"""
 #--------------------#
 # TRAINING
 #--------------------#
+def toString(epochtype, epochID, e_loss, e_total_accu, e_lastP_accu, speed):
+    if epochtype == "test":
+        r = "---------------------------------------------------------------------------\n"
+    else:
+        r = ""
+    r += "|"
+    r += str(epochID) + "\t|"
+    r += epochtype + "\t|"
+    r += "err: %.8f |" %e_loss
+    r += "acc: %2.2f%% |" %e_total_accu
+    r += "LP_acc: %.2f%% |" %e_lastP_accu
+    r += "sp: %.2f win/s" %speed
+    return r
+
 saver = tf.train.Saver()
 
 displaystep = 30
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-
     for epochID in range(nb_epochs):
-        epoch_loss = 0
-        epoch_accu = 0
-        epoch_top1accu = 0
+        e_loss, e_total_accu, e_lastP_accu = 0, 0, 0
         nb_batchs = len(dataset.batchs_train)
         t = time.time()
         for batch in dataset.batchs_train:
             dataX, dataY = batch
-            loss = sess.run([total_loss, train_step], feed_dict={inputs: dataX, outputs: dataY})
-            t = time.time() - t
-            accu = accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
-            top1accu = nextpred_accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
-            epoch_loss += loss[0]/(nb_batchs*batch_size)
-            epoch_accu += 100*(accu)/nb_batchs
-            epoch_top1accu += 100*(top1accu)/nb_batchs
-        sp = nb_batchs * batch_size / (time.time() - t)
+            fd = {inputs: dataX, outputs_R: dataY}
+            loss = sess.run([total_loss, train_step], feed_dict=fd)
+            total_accu, lastP_accu = [accu.eval(feed_dict=fd) for accu in (_total_accu, _lastP_accu)]
+            e_loss += loss[0]/(nb_batchs*batch_size)
+            e_total_accu += 100*(total_accu)/nb_batchs
+            e_lastP_accu += 100*(lastP_accu)/nb_batchs
+        speed = nb_batchs * batch_size / (time.time() - t)
         if epochID % 1 == 0:
-            print "train epoch: ", epochID, "\terr: ",epoch_loss,"\taccu : %.2f \t@1accu : %.2f \tspeed : %.2f win/s" % (epoch_accu, epoch_top1accu, sp)
+            print toString("train", epochID, e_loss, e_total_accu, e_lastP_accu, speed)
         if epochID % 10 == 0:
-            epoch_loss = 0
-            epoch_accu = 0
-            epoch_top1accu = 0
+            e_loss, e_total_accu, e_lastP_accu = 0, 0, 0
             nb_batchs = len(dataset.batchs_test)
+            t = time.time()
             for batch in dataset.batchs_test:
                 dataX, dataY = batch
-                loss = total_loss.eval(feed_dict={inputs: dataX, outputs: dataY})
-                accu = accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
-                top1accu = nextpred_accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
-                epoch_loss += loss/(nb_batchs*batch_size)
-                epoch_accu += 100*(accu)/nb_batchs
-                epoch_top1accu += 100*(top1accu)/nb_batchs
-            print "test  epoch: ", epochID, "\terr: ",epoch_loss,"\taccu : %.2f \t@1accu : %.2f" % (epoch_accu, epoch_top1accu)
+                fd = {inputs: dataX, outputs_R: dataY}
+                loss = total_loss.eval(feed_dict=fd)
+                total_accu, lastP_accu = [accu.eval(feed_dict=fd) for accu in (_total_accu, _lastP_accu)]
+                e_loss += loss/(nb_batchs*batch_size)
+                e_total_accu += 100*(total_accu)/nb_batchs
+                e_lastP_accu += 100*(lastP_accu)/nb_batchs
+            speed = nb_batchs * batch_size / (time.time() - t)
+            print toString("test", epochID, e_loss, e_total_accu, e_lastP_accu, speed)

@@ -1,17 +1,16 @@
 import tensorflow as tf
 import numpy as np
-import pandas as pd
 import time
 import csv
 
 # PARAMETERS
-state_size = 20
+state_size = 10
 input_size = 1
 output_size = 1
-num_steps = 20
+num_steps = 10#20
 num_layers = 2
-batch_size = 200
-nb_epochs = 20000
+batch_size = 2#200
+nb_epochs = 80000
 treshold = 0.20
 learning_rate = 0.01
 np.random.seed(10)
@@ -103,13 +102,25 @@ class Data:
 #--------------------#
 # TENSORFLOW MODEL
 #--------------------#
+def tf_count(t, val):
+    elements_equal_to_value = tf.equal(t, val)
+    as_ints = tf.cast(elements_equal_to_value, tf.int32)
+    count = tf.reduce_sum(as_ints)
+    return count
+
 # input/output placeholders
 inputs = tf.placeholder(tf.float32, [batch_size, num_steps, input_size])
 outputs = tf.placeholder(tf.float32, [batch_size, num_steps, output_size])
 
 # definition of the RNN
-cell = tf.nn.rnn_cell.LSTMCell(state_size, state_is_tuple=True)
-cell = tf.nn.rnn_cell.MultiRNNCell([cell] * num_layers, state_is_tuple=True)
+
+try:
+    cell = tf.contrib.rnn.LSTMCell(state_size, state_is_tuple=True)
+    cell = tf.contrib.rnn.MultiRNNCell([cell] * num_layers, state_is_tuple=True)
+except AttributeError:
+    cell = tf.nn.rnn_cell.LSTMCell(state_size, state_is_tuple=True)
+    cell = tf.nn.rnn_cell.MultiRNNCell([cell] * num_layers, state_is_tuple=True)
+
 init_state = cell.zero_state(batch_size, tf.float32)
 rnn_outputs, final_state = tf.nn.dynamic_rnn(cell, inputs, initial_state=init_state)
 
@@ -145,6 +156,7 @@ nextpred_accuracy = tf.reduce_mean(tf.cast(nextpred_correct_prediction, tf.float
 train_step = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
 
 
+test = y_reshaped[:, :, 0]
 
 
 #--------------------#
@@ -160,13 +172,19 @@ dataset.gen_datasets()
 # DEBUGGING
 #--------------------#
 # test data
+
 testX = np.array(batch_size*[[[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]])
 testY = np.array(batch_size*[[[1], [-1], [0], [1], [1], [0], [1], [-1], [1], [1]]])
-"""
+
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     fd = feed_dict={inputs: testX, outputs: testY}
+    print("y_reshaped")
     print(y_reshaped.eval(fd))
+    print("test")
+    print(test.eval(fd))
+    #print(tf_count(y_reshaped.eval(fd), 0))
+    print("final result")
     print(final_result.eval(fd))
     print(real_next.eval(fd))
     print(next_pred.eval(fd))
@@ -174,7 +192,7 @@ with tf.Session() as sess:
     print(nextpred_accuracy.eval(fd))
 
 assert()
-"""
+
 #--------------------#
 # TRAINING
 #--------------------#
@@ -206,11 +224,13 @@ with tf.Session() as sess:
         if epochID % 10 == 0:
             epoch_loss = 0
             epoch_accu = 0
+            epoch_top1accu = 0
             nb_batchs = len(dataset.batchs_test)
             for batch in dataset.batchs_test:
                 dataX, dataY = batch
                 loss = total_loss.eval(feed_dict={inputs: dataX, outputs: dataY})
                 accu = accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
+                top1accu = nextpred_accuracy.eval(feed_dict={inputs: dataX, outputs: dataY})
                 epoch_loss += loss/(nb_batchs*batch_size)
                 epoch_accu += 100*(accu)/nb_batchs
                 epoch_top1accu += 100*(top1accu)/nb_batchs

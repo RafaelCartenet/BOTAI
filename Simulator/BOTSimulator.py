@@ -24,8 +24,8 @@ def main():
     # DATA MANAGER
     datamanager = DataManager("../data/EURUSD.csv",
                     "M1",
-                    "d03/04/17 00:00",
-                    "d03/04/17 23:59")
+                    "03/04/17 00:00",
+                    "03/04/17 23:59")
 
     datamanager.ImportData()
 

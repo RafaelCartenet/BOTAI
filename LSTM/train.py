@@ -7,9 +7,9 @@ import csv
 state_size = 20
 input_size = 1
 output_size = 1
-num_steps = 10
+num_steps = 20
 num_layers = 2
-batch_size = 300
+batch_size = 200
 nb_epochs = 80000
 learning_rate = 0.01
 np.random.seed(10)
@@ -163,6 +163,21 @@ _total_accu = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 # last time step accuracy
 correct_prediction = tf.equal(last_outputs_P, last_outputs_R)
 _lastP_accu = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+# number of non-zero predictions.
+nbzeros = tf_count(round_outputs_P, zer)
+_non_zero_P_prop = tf.cast(batch_size*num_steps - nbzeros, tf.float32)/(batch_size*num_steps)
+
+# compare only predictions for tendencies
+_onlytendencies_R = tf.select(tf.abs(round_outputs_P) > 0, outputs_R, zer)
+_onlytendencies_P = tf.select(tf.abs(outputs_R) > 0, round_outputs_P, zer)
+
+false = tf.constant(False, shape=[batch_size, num_steps, output_size])
+_only_true_pred = tf.select(tf.abs(_onlytendencies_P) > 0, tf.equal(_onlytendencies_P, _onlytendencies_R), false)
+as_ints = tf.cast(_only_true_pred, tf.int32)
+count = tf.reduce_sum(as_ints)
+nb_non_zeros = batch_size*num_steps - tf_count(_onlytendencies_P, zer)
+_NZPR_accu = tf.cast(count, tf.float32)/tf.cast(nb_non_zeros, tf.float32)
 # ----------------
 
 
@@ -189,13 +204,18 @@ dataset.gen_datasets()
 
 testX = np.array(batch_size*[[[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]])
 testY = np.array(batch_size*[[[1], [-1], [0], [1], [1], [0], [1], [-1], [1], [1]]])
-
 """
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     fd = feed_dict={inputs: testX, outputs_R: testY}
-    print(outputs_P.eval(fd))
-    print(round_outputs_P.eval(fd))
+    #print(tf_count(outputs_R.eval(fd), 0))
+    #print(round_outputs_P.eval(fd))
+    print(outputs_R.eval(fd))
+    print(_onlytendencies_R.eval(fd))
+    print(_onlytendencies_P.eval(fd))
+    print(_NZPR_accu.eval(fd))
+    #print(false.eval(fd)); assert()
+    #print(_non_zero_P_prop.eval(fd));assert()
     #print(tf_count(y_reshaped.eval(fd), 0))
     #print("final result")
     #print(final_result.eval(fd))
@@ -209,9 +229,9 @@ assert()
 #--------------------#
 # TRAINING
 #--------------------#
-def toString(epochtype, epochID, e_loss, e_total_accu, e_lastP_accu, speed):
+def toString(epochtype, epochID, e_loss, e_total_accu, e_lastP_accu, speed, non_zero_P_prop, NZPR_accu):
     if epochtype == "test":
-        r = "---------------------------------------------------------------------------\n"
+        r = "-----------------------------------------------------------------------------------------------------------------------\n"
     else:
         r = ""
     r += "|"
@@ -219,8 +239,10 @@ def toString(epochtype, epochID, e_loss, e_total_accu, e_lastP_accu, speed):
     r += epochtype + "\t|"
     r += "err: %.8f |" %e_loss
     r += "acc: %2.2f%% |" %e_total_accu
-    r += "LP_acc: %.2f%% |" %e_lastP_accu
-    r += "sp: %.2f win/s" %speed
+    r += "LP_acc: %.2f%%\t|" %e_lastP_accu
+    r += "sp: %.2f win/s\t|" %speed
+    r += "NZPprop: %.2f%%\t|" %non_zero_P_prop
+    r += "NZPRacc: %.2f%%" %NZPR_accu
     return r
 
 saver = tf.train.Saver()
@@ -230,31 +252,35 @@ displaystep = 30
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for epochID in range(nb_epochs):
-        e_loss, e_total_accu, e_lastP_accu = 0, 0, 0
+        e_loss, e_total_accu, e_lastP_accu, e_non_zero_P_prop, e_NZPR_accu = 0, 0, 0, 0, 0
         nb_batchs = len(dataset.batchs_train)
         t = time.time()
         for batch in dataset.batchs_train:
             dataX, dataY = batch
             fd = {inputs: dataX, outputs_R: dataY}
             loss = sess.run([total_loss, train_step], feed_dict=fd)
-            total_accu, lastP_accu = [accu.eval(feed_dict=fd) for accu in (_total_accu, _lastP_accu)]
+            total_accu, lastP_accu, non_zero_P_prop, NZPR_accu = [tensor.eval(feed_dict=fd) for tensor in (_total_accu, _lastP_accu, _non_zero_P_prop, _NZPR_accu)]
             e_loss += loss[0]/(nb_batchs*batch_size)
             e_total_accu += 100*(total_accu)/nb_batchs
             e_lastP_accu += 100*(lastP_accu)/nb_batchs
+            e_non_zero_P_prop += 100*(non_zero_P_prop)/nb_batchs
+            e_NZPR_accu += 100*(NZPR_accu)/nb_batchs
         speed = nb_batchs * batch_size / (time.time() - t)
         if epochID % 1 == 0:
-            print toString("train", epochID, e_loss, e_total_accu, e_lastP_accu, speed)
+            print toString("train", epochID, e_loss, e_total_accu, e_lastP_accu, speed, e_non_zero_P_prop, e_NZPR_accu)
         if epochID % 10 == 0:
-            e_loss, e_total_accu, e_lastP_accu = 0, 0, 0
+            e_loss, e_total_accu, e_lastP_accu, e_non_zero_P_prop, e_NZPR_accu = 0, 0, 0, 0, 0
             nb_batchs = len(dataset.batchs_test)
             t = time.time()
             for batch in dataset.batchs_test:
                 dataX, dataY = batch
                 fd = {inputs: dataX, outputs_R: dataY}
                 loss = total_loss.eval(feed_dict=fd)
-                total_accu, lastP_accu = [accu.eval(feed_dict=fd) for accu in (_total_accu, _lastP_accu)]
+                total_accu, lastP_accu, non_zero_P_prop, NZPR_accu = [tensor.eval(feed_dict=fd) for tensor in (_total_accu, _lastP_accu, _non_zero_P_prop, _NZPR_accu)]
                 e_loss += loss/(nb_batchs*batch_size)
                 e_total_accu += 100*(total_accu)/nb_batchs
                 e_lastP_accu += 100*(lastP_accu)/nb_batchs
+                e_non_zero_P_prop += 100*(non_zero_P_prop)/nb_batchs
+                e_NZPR_accu += 100*(NZPR_accu)/nb_batchs
             speed = nb_batchs * batch_size / (time.time() - t)
-            print toString("test", epochID, e_loss, e_total_accu, e_lastP_accu, speed)
+            print toString("test", epochID, e_loss, e_total_accu, e_lastP_accu, speed, e_non_zero_P_prop, e_NZPR_accu)

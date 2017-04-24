@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+   <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+         <xs:element name="Rates">
+               <xs:complexType>
+                     <xs:sequence>
+                           <xs:element name="Rate" maxOccurs="unbounded">
+                                 <xs:complexType>
+                                       <xs:sequence>
+                                             <xs:element name="Bid" type="xs:double"></xs:element>
+                                             <xs:element name="Ask" type="xs:double"></xs:element>
+                                             <xs:element name="High" type="xs:double"></xs:element>
+                                             <xs:element name="Low" type="xs:double"></xs:element>
+                                             <xs:element name="Direction" type="xs:int"></xs:element>
+                                             <xs:element name="Last" type="xs:string"></xs:element>
+                                       </xs:sequence>
+                                       <xs:attribute name="Symbol" type="xs:string"></xs:attribute>
+                                 </xs:complexType>
+                           </xs:element>
+                     </xs:sequence>
+               </xs:complexType>
+         </xs:element>
+   </xs:schema>

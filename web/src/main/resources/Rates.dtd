@@ -1,0 +1,34 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT Rates (Rate)+>
+<!ATTLIST Rates
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Rate (Bid,Ask,High,Low,Direction,Last)>
+<!ATTLIST Rate
+  xmlns CDATA #FIXED ''
+  Symbol NMTOKEN #REQUIRED>
+
+<!ELEMENT Bid (#PCDATA)>
+<!ATTLIST Bid
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Ask (#PCDATA)>
+<!ATTLIST Ask
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT High (#PCDATA)>
+<!ATTLIST High
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Low (#PCDATA)>
+<!ATTLIST Low
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Direction (#PCDATA)>
+<!ATTLIST Direction
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Last (#PCDATA)>
+<!ATTLIST Last
+  xmlns CDATA #FIXED ''>

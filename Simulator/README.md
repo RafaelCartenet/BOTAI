@@ -89,3 +89,64 @@ modulestats.compute_stats()
 modulestats.display_stats()
 modulestats.plot_stats()
 ```
+
+Example of results displayed:
+```
+Datas information
+--------------------------------------
+  Period Start		: 03/04/17 00:00
+  Period End		: 03/04/17 23:58
+  Timestep used		: M1
+  Ups			: 664 | 46.18%
+  Downs			: 653 | 45.41%
+  Equals		: 121 | 8.41%
+
+Results
+--------------------------------------
+  Initial Balance	: 1000.00$
+  Final Balance		: 1574.64$
+  Profit		: 574.64$
+  Relative profit	: 57.46%
+  Nb actions taken	: 1438
+  Max Balance		: 1574.64$
+  Min Balance		: 583.77$
+
+Consecutive actions results
+--------------------------------------
+  MaxConsRight		: 13
+  MaxConsWrong		: 9
+  Details :
+  consecutive right actions
+   	|uni	|cumul
+   	-------------
+    2:	|100	|196
+    3:	|46	|96
+    4:	|23	|50
+    5:	|16	|27
+    6:	|4	|11
+    7:	|6	|7
+    13:	|1	|1
+  consecutive wrong actions
+   	|uni	|cumul
+   	-------------
+    2:	|96	|166
+    3:	|42	|70
+    4:	|17	|28
+    5:	|6	|11
+    6:	|3	|5
+    7:	|1	|2
+    9:	|1	|1
+```
+
+Another output is the list of every action taken at each time step as well as the result of this action and the evolution of the balance. Here is an example of a Martingale policy simulation with time step M5:
+```
+...
+|239	|2017-03-04 19:50:00+00:00	|1.06636 |Put	|20.83		|False	|1083.75
+|240	|2017-03-04 19:55:00+00:00	|1.06638 |Put	|44.50		|True	|1062.92
+|241	|2017-03-04 20:00:00+00:00	|1.06603 |Put	|1.00		|False	|1102.08
+|242	|2017-03-04 20:05:00+00:00	|1.06609 |Put	|2.14		|True	|1101.08
+|243	|2017-03-04 20:10:00+00:00	|1.06601 |Put	|1.00		|False	|1102.96
+|244	|2017-03-04 20:15:00+00:00	|1.06606 |Put	|2.14		|False	|1101.96
+...
+```
+Note that the most right ammount is the balance after that the bet has been done, before the result of next time step.

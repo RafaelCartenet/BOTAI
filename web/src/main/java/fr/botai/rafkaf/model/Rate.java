@@ -2,20 +2,23 @@ package fr.botai.rafkaf.model;
 
 import java.time.LocalTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Rate {
 
 	private float bid;
 	private float ask;
 	private LocalTime last;
+	private String symbol;
 	
-	public Rate(float bid, float ask, LocalTime last) {
+	public Rate(float bid, float ask, LocalTime last, String symbol) {
 		super();
 		this.bid = bid;
 		this.ask = ask;
 		this.last = last;
+		this.symbol = symbol;
+	}
+
+	public Rate() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public float getBid() {
@@ -40,6 +43,19 @@ public class Rate {
 
 	public void setLast(LocalTime last) {
 		this.last = last;
+	}
+
+	public String getSymbol() {
+		return symbol;
+	}
+
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+
+	@Override
+	public String toString() {
+		return "Rate [bid=" + bid + ", ask=" + ask + ", last=" + last + ", symbol=" + symbol + "]";
 	}
 	
 	

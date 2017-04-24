@@ -5,13 +5,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import fr.botai.rafkaf.api.TradeCall;
+
 @Component
 public class TradeBatch {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private TradeCall call;
 
-	@Scheduled(cron="0 */5 10-22 * * MON-FRI") // executer le job toutes les 5 min
+	public TradeBatch(){
+		this.call = new TradeCall();
+	}
+	
+	@Scheduled(cron="0 */5 10-22 * * MON-FRI")
 	public void cronJob(){
+		System.out.println(call.callApiSpecific());
 		logger.info("Chaque 5 min je vais lancer des appels pour avoir de nouvelles valeurs et lancer le script donnant la stratégie à adopter");
 	}
 	

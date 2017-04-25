@@ -19,11 +19,11 @@ import org.xml.sax.InputSource;
 import fr.botai.rafkaf.model.XmlTreatment;
 import fr.botai.rafkaf.model.Rate;
 
-public class TradeCall {
+public class RateCall {
 
 	RestTemplate restTemplate;
 	
-	public TradeCall(){
+	public RateCall(){
 		this.restTemplate = new RestTemplate();
 	}
 	

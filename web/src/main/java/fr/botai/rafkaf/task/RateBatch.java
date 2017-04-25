@@ -1,5 +1,8 @@
 package fr.botai.rafkaf.task;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +36,13 @@ public class RateBatch {
 	@Scheduled(cron="0 */2 10-22 * * MON-FRI")
 	public void watchForDecision(){
 		logger.info("Chaque jour toutes les deux minutes je guette une réponse et lance un appel pour l'éxécuter si nécessaire");
-		System.out.println(rateService.findAll());
+		
 	}
 	
 	@Scheduled(cron="0 30 9 * * MON-FRI")
 	public void cleanForNewDay(){
 		logger.info("Chaque jour à 9h30 je lance un script de nettoyage de fichier et vide les données inutiles de la base");
+	
 	}
 
 }

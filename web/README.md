@@ -15,3 +15,13 @@ Spring-boot is also __***well adapted to build a rest architecture***__.
 Spring-boot inheriths from [Spring documentation](http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/html/) which will make us learn the good practices and will avoid us to get stuck.
 Once the application will be working we will use Spring-security to secure it.
 Finally we will use Angular 2 framework to have a minimal interface.
+The whole thing will be deploy with maven.
+
+
+# How is it working
+
+The application is scheduled to frequently calls (every 5 minutes or so) an API to refresh the values obtain from the Forex.
+The application stores these values in a database (Combo MySQL + Hibernate).
+The application is then calling the machine learning algorithm with a defined set of values. (We will improve this step by making the algorithm querying the database frequently independently).
+The algorithm generates an action to do in a json format that the application will consume and store in the database.
+

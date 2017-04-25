@@ -29,7 +29,7 @@
 	<dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
-	    <version>6.0.6</version>
+	    <version>6.0.6</version><!--$NO-MVN-MAN-VER$-->
 	</dependency>
   </dependencies>
   

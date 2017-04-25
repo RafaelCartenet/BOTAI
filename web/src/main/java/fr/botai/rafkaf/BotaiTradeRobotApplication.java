@@ -9,8 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class BotaiTradeRobotApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BotaiTradeRobotApplication.class, args);
-		
+		SpringApplication.run(BotaiTradeRobotApplication.class, args);	
 	}
 	
 }

@@ -20,8 +20,8 @@ public class TradeBatch {
 	
 	@Scheduled(cron="0 */5 10-22 * * MON-FRI")
 	public void cronJob(){
-		System.out.println(call.callApiSpecific());
 		logger.info("Chaque 5 min je vais lancer des appels pour avoir de nouvelles valeurs et lancer le script donnant la stratégie à adopter");
+		System.out.println(call.callApiSpecific());
 	}
 	
 	@Scheduled(cron="0 */2 10-22 * * MON-FRI")

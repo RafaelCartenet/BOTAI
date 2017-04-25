@@ -54,8 +54,4 @@ public class TradeCall {
 		}		
 	}
 	
-	public static void main(String[] args){
-		new TradeCall().callApiSpecific();
-	}
-	
 }

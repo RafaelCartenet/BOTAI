@@ -1,15 +1,38 @@
 package fr.botai.rafkaf.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+@Entity
+@Table(name="rates")
 public class Rate {
 
+	@Id @GeneratedValue(strategy=GenerationType.AUTO)
+	private int id;
+	
+	@NotNull
 	private float bid;
+	
+	@NotNull
 	private float ask;
-	private LocalTime last;
+	
+	@NotNull
+	@Column(name="date_rate")
+	private LocalDateTime last;
+	
+	@NotNull
 	private String symbol;
 	
-	public Rate(float bid, float ask, LocalTime last, String symbol) {
+	public Rate(int id, float bid, float ask, LocalDateTime last, String symbol) {
 		super();
 		this.bid = bid;
 		this.ask = ask;
@@ -37,20 +60,32 @@ public class Rate {
 		this.ask = ask;
 	}
 
-	public LocalTime getLast() {
+	public LocalDateTime getLast() {
 		return last;
 	}
 
-	public void setLast(LocalTime last) {
+	public void setLast(LocalDateTime last) {
 		this.last = last;
 	}
 
+	public void setLastFromTime(LocalTime time){
+		this.last = LocalDateTime.of(LocalDate.now(), time);
+	}
+	
 	public String getSymbol() {
 		return symbol;
 	}
 
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

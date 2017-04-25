@@ -39,7 +39,7 @@ public class XmlTreatment {
 			temp.setBid(Float.parseFloat(nodeList.item(i).getChildNodes().item(0).getTextContent()));
 			temp.setAsk(Float.parseFloat(nodeList.item(i).getChildNodes().item(1).getTextContent()));
 			String[] time = nodeList.item(i).getChildNodes().item(5).getTextContent().split(":");
-			temp.setLast(LocalTime.of(Integer.parseInt(time[0]),Integer.parseInt(time[1]),Integer.parseInt(time[2])));
+			temp.setLastFromTime(LocalTime.of(Integer.parseInt(time[0]),Integer.parseInt(time[1]),Integer.parseInt(time[2])));
 			rates.add(temp);
 		}
 		

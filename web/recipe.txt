@@ -1,0 +1,25 @@
+-> sudo apt-get install git mysql-server
+-> sudo apt-get install maven
+
+-> sudo add-apt-repository ppa:openjdk-r/ppa
+-> sudo apt-get update
+-> sudo apt-get install openjdk-8-jre
+-> sudo apt-get install openjdk-8-jre
+-> sudo update-alternatives --config javac
+-> sudo update-alternatives --config java
+
+*Check java version
+-> java -version
+-> javac -version
+
+-> git clone https://github.com/RafaelCartenet/BOTAI.git
+
+/* IF not Exists to remove line 4 for linux -> look for that problem */
+-> mysql -u root -p < createBotai.sql 
+
+-> mvn package
+-> cd target/
+-> java -jar {.... .jar}
+
+
+

@@ -9,31 +9,48 @@
   <artifactId>botai-trade-robot</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>BotaiRobot</name>
-  
+
   <dependencies>
 	<dependency>
 	    <groupId>org.springframework.boot</groupId>
 	    <artifactId>spring-boot-starter-web</artifactId>
 	</dependency>
-	
+
 	  <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
-    
+
  	<dependency>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-devtools</artifactId>
-	</dependency> 
-	
+	</dependency>
+
 	<dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
 	    <version>6.0.6</version><!--$NO-MVN-MAN-VER$-->
 	</dependency>
   </dependencies>
-  
+
   <properties>
   	<java.version>1.8</java.version>
   </properties>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-maven-plugin</artifactId>
+              <version>1.5.3.RELEASE</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>repackage</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
+  </build>
 </project>

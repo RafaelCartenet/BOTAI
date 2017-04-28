@@ -3,6 +3,7 @@ package fr.botai.rafkaf.api;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -12,6 +13,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -48,10 +50,13 @@ public class RateCall {
 			
 			doc = XmlTreatment.stripEmptyNode(doc);
 			return XmlTreatment.parseRatesXML(doc.getChildNodes().item(0).getChildNodes());
-		}catch(Exception e){
-			System.out.println(e);
+		}catch(ConnectException e){
+			Logger.getLogger(this.getClass()).error(e,e.fillInStackTrace());
 			return new ArrayList<>();
-		}		
+		}catch(Exception e){
+			Logger.getLogger(this.getClass()).error(e,e.fillInStackTrace());
+			return new ArrayList<>();
+		}
 	}
 	
 }

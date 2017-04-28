@@ -32,8 +32,13 @@
 	    <version>6.0.6</version><!--$NO-MVN-MAN-VER$-->
 	</dependency>
   </dependencies>
-
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.1.0.Final</version>
+        </dependency>
   <properties>
+  	<hibernate.version>5.1.0.Final</hibernate.version>
   	<java.version>1.8</java.version>
   </properties>
 

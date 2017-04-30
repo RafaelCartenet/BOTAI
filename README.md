@@ -12,7 +12,7 @@ Which is 53% when the ratio is 0.88, 56% when the ratio is 0.80.
 
 The goal of the project is to realize an automatized cost effective strategy with a ratio higher than these reference ratios, with as few as possible risks and a balance and reinvestment management strategy.
 
-Files belows are independant for now.  
+Files below are independent for now.  
 
 ## Simulator
 This simulator predicts the efficiency of a given strategy. According to a period of time, it will use the chosen strategy in order to simulate bets, compute the results, and gives statistics, in order to have an idea about the efficiency of the model.

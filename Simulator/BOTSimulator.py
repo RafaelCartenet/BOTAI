@@ -15,6 +15,7 @@ from Engine import *
 # Policies
 from randompolicy import *
 from martingalepolicy import *
+from martingalepolicyUD import *
 
 # Libraries
 import warnings
@@ -23,9 +24,9 @@ warnings.filterwarnings('ignore')
 def main():
     # DATA MANAGER
     datamanager = DataManager("../data/EURUSD.csv",
-                    "M1",
-                    "03/04/17 00:00",
-                    "03/04/17 23:59")
+                    "M5",
+                    "m03/04/17 00:00",
+                    "m03/04/17 23:59")
 
     datamanager.ImportData()
 
@@ -33,7 +34,7 @@ def main():
     modulestats = ModulStat(datamanager, initial_balance=1000)
 
     # POLICY DEFINITION
-    policy = martingalepolicy(ratio=2.13636364, init=1)
+    policy = martingalepolicyUD(ratio=2.13636364, init=1)
 
     # ENGINE
     engine = Engine(datamanager, policy, modulestats)
